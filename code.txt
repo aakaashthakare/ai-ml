@@ -1,0 +1,53 @@
+import requests
+import subprocess
+
+# Define Nexus host
+NEXUS_HOST = "<nexus-host>"
+
+# Fetch repositories
+repo_url = f"{NEXUS_HOST}/service/rest/v1/repositories"
+response = requests.get(repo_url)
+if response.status_code != 200:
+    print(f"Failed to fetch repositories: {response.status_code}")
+    exit()
+
+repos = response.json()
+
+# Extract distinct formats
+formats = list({repo["format"] for repo in repos})
+print("Distinct Formats:", formats)
+
+all_success = True
+
+# Iterate over formats and call search API
+for f in formats:
+    search_url = f"{NEXUS_HOST}/service/rest/v1/search?format={f}"
+    search_response = requests.get(search_url)
+    if search_response.status_code == 200:
+        search_results = search_response.json()
+        items = search_results.get("items", [])
+        if items:
+            first_asset = items[0].get("assets", [])
+            if first_asset:
+                download_url = first_asset[0].get("downloadUrl")
+                if download_url:
+                    print(f"Checking download for format {f}: {download_url}")
+                    result = subprocess.run(["wget", "--spider", download_url], capture_output=True)
+                    if result.returncode != 0:
+                        print(f"Failed to download {download_url}")
+                        all_success = False
+                        break
+                else:
+                    print(f"No download URL found for format {f}")
+            else:
+                print(f"No assets found for format {f}")
+        else:
+            print(f"No items found for format {f}")
+    else:
+        print(f"Failed to fetch search results for format {f}: {search_response.status_code}")
+        all_success = False
+        break
+
+if all_success:
+    print("All downloads checked successfully!")
+
