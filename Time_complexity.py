@@ -1,5 +1,6 @@
 import time
 
+#Time complexity analysis
 def constant_time(arr):  # O(1)
     print("First element:", arr[0])  # Accessing an element = constant time
     print("Iterations: 1")
