@@ -1,4 +1,4 @@
-
+#Ds code
 arr = [10, 20, 30, 40, 50]
 
 def copy_array(arr, n):
