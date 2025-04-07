@@ -1,7 +1,7 @@
 import requests
 import subprocess
 
-# Define Nexus host
+
 NEXUS_HOST = "<nexus-host>"
 
 # Fetch repositories
@@ -51,3 +51,4 @@ for f in formats:
 if all_success:
     print("All downloads checked successfully!")
 
+#end of program
